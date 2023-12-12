@@ -34,6 +34,7 @@ if (data.ipOverride) {
 if (logging) {
     logToConsole("Amplitude Request Body: " + amplitudeBody);
 }
+//dette er en endring
 
 sendHttpRequest(data.url, (statusCode, headers, body) => {
 
