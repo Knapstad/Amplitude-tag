@@ -11,6 +11,7 @@ const isDebug = containerVersion.debugMode;
 const logging = loggingEnabled();
 const setResponseBody = require("setResponseBody");
 const postHeaders = { 'Content-Type': 'application/json' };
+const getRemoteAddress = require('getRemoteAddress');
 let postBodyData = {};
 
 const eventData = getAllEventData();
@@ -20,6 +21,14 @@ let requestOptions = { headers: postHeaders, method: data.requestMethod };
 
 if (data.timeout) {
     requestOptions.timeout = makeInteger(data.timeout);
+}
+if (!data.overrideIp) {
+    const ip = getRemoteAddress();
+    eventData.ip = ip;
+}
+
+if (data.ipOverride) {
+    eventData.ip = data.ipOverride;
 }
 
 if (logging) {
