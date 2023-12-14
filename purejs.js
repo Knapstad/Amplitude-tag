@@ -19,22 +19,28 @@ const amplitudeBody = JSON.stringify(eventData);
 
 let requestOptions = { headers: postHeaders, method: data.requestMethod };
 
+
+//Options
+
 if (data.timeout) {
     requestOptions.timeout = makeInteger(data.timeout);
 }
+
+// set client Ip-address
 if (!data.overrideIp) {
     const ip = getRemoteAddress();
     eventData.ip = ip;
 }
-
+// set ccustom Ip-address
 if (data.ipOverride) {
     eventData.ip = data.ipOverride;
+    0
 }
+// Else use the default Ip-address
 
 if (logging) {
     logToConsole("Amplitude Request Body: " + amplitudeBody);
 }
-//dette er en endring
 
 sendHttpRequest(data.url, (statusCode, headers, body) => {
 
