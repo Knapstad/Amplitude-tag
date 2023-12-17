@@ -3,12 +3,12 @@ const getAllEventData = require('getAllEventData');
 const makeInteger = require('makeInteger');
 const makeTableMap = require('makeTableMap');
 const JSON = require('JSON');
-const getRequestHeader = require('getRequestHeader');
 const logToConsole = require('logToConsole');
 const getContainerVersion = require('getContainerVersion');
 const containerVersion = getContainerVersion();
 const isDebug = containerVersion.debugMode;
 const logging = loggingEnabled();
+const getRequestHeader = require('getRequestHeader');
 const setResponseBody = require("setResponseBody");
 const postHeaders = { 'Content-Type': 'application/json' };
 const getRemoteAddress = require('getRemoteAddress');
@@ -19,19 +19,30 @@ let events = eventData.events;
 const amplitudeBody = JSON.stringify(eventData);
 
 let requestOptions = { headers: postHeaders, method: data.requestMethod };
-
+let ip = "";
 
 //Options
-
+logToConsole("Amplitude Tag: Timeout");
 if (data.timeout) {
     requestOptions.timeout = makeInteger(data.timeout);
 }
+logToConsole("Amplitude Tag: Headers");
+const headers = data.headers;
+if (headers) {
+    headers.forEach(header => {
+        logToConsole("Setting custom headers: " + JSON.stringify(header.key) + " : " + JSON.stringify(header.value));
+        requestOptions.headers[header.key] = header.value;
+    });
+}
+
 
 // set client Ip-address
+logToConsole("Amplitude tag: IP");
 
 if (!data.overrideIp) {
-    const ip = getRemoteAddress();
-    logToConsole("Setting client Ip-address: " + ip)
+
+    ip = getRemoteAddress();
+    logToConsole("Setting client Ip-address: " + ip);
     events.forEach(event => {
         event.ip = ip;
     });
@@ -42,7 +53,7 @@ if (data.ipOverride) {
     events.forEach(event => {
         event.ip = ip;
     });
-    logToConsole("Setting custom Ip-address: " + data.ipOverride)
+    logToConsole("Setting custom Ip-address: " + data.ipOverride);
 }
 // Else use the default Ip-address
 
