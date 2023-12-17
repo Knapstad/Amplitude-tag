@@ -15,6 +15,7 @@ const getRemoteAddress = require('getRemoteAddress');
 let postBodyData = {};
 
 const eventData = getAllEventData();
+let events = eventData.events;
 const amplitudeBody = JSON.stringify(eventData);
 
 let requestOptions = { headers: postHeaders, method: data.requestMethod };
@@ -27,14 +28,21 @@ if (data.timeout) {
 }
 
 // set client Ip-address
+
 if (!data.overrideIp) {
     const ip = getRemoteAddress();
-    eventData.ip = ip;
+    logToConsole("Setting client Ip-address: " + ip)
+    events.forEach(event => {
+        event.ip = ip;
+    });
 }
-// set ccustom Ip-address
+
+// set custom Ip-address
 if (data.ipOverride) {
-    eventData.ip = data.ipOverride;
-    0
+    events.forEach(event => {
+        event.ip = ip;
+    });
+    logToConsole("Setting custom Ip-address: " + data.ipOverride)
 }
 // Else use the default Ip-address
 
