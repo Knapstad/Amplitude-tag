@@ -16,16 +16,22 @@ let postBodyData = {};
 
 const eventData = getAllEventData();
 let events = eventData.events;
-const amplitudeBody = JSON.stringify(eventData);
+let amplitudeBody = eventData;
 
 let requestOptions = { headers: postHeaders, method: data.requestMethod };
 let ip = "";
 
-//Options
+//Options//
+
+//Timeout
 logToConsole("Amplitude Tag: Timeout");
 if (data.timeout) {
     requestOptions.timeout = makeInteger(data.timeout);
+} else {
+    logToConsole("No timeout set");
 }
+
+//Headers
 logToConsole("Amplitude Tag: Headers");
 const headers = data.headers;
 if (headers) {
@@ -33,12 +39,13 @@ if (headers) {
         logToConsole("Setting custom headers: " + JSON.stringify(header.key) + " : " + JSON.stringify(header.value));
         requestOptions.headers[header.key] = header.value;
     });
+} else {
+    logToConsole("No custom headers found");
 }
 
 
-// set client Ip-address
+// Set client Ip-address
 logToConsole("Amplitude tag: IP");
-
 if (!data.overrideIp) {
 
     ip = getRemoteAddress();
@@ -48,7 +55,7 @@ if (!data.overrideIp) {
     });
 }
 
-// set custom Ip-address
+// Set custom Ip-address
 if (data.ipOverride) {
     events.forEach(event => {
         event.ip = ip;
@@ -61,6 +68,22 @@ if (logging) {
     logToConsole("Amplitude Request Body: " + amplitudeBody);
 }
 
+// Event data
+logToConsole("Amplitude Tag: Event data");
+const eventProperties = data.eventProperties;
+if (eventProperties) {
+    events.forEach(event => {
+        eventProperties.forEach(property => {
+            logToConsole("Setting event property: " + JSON.stringify(property.key) + " : " + JSON.stringify(property.value));
+            event.event_properties[property.key] = property.value;
+        });
+
+    });
+} else {
+    logToConsole("No event properties found");
+}
+
+amplitudeBody.events = events;
 sendHttpRequest(data.url, (statusCode, headers, body) => {
 
 
@@ -70,7 +93,7 @@ sendHttpRequest(data.url, (statusCode, headers, body) => {
     } else {
         data.gtmOnFailure();
     }
-}, requestOptions, amplitudeBody);
+}, requestOptions, JSON.stringify(amplitudeBody));
 
 function loggingEnabled() {
     if (!data.logType) {
